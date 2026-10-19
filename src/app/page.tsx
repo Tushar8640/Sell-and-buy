@@ -1,69 +1,87 @@
-import Image from "next/image";
+import { Suspense } from "react";
+import { Loading } from "@/components/Loading";
+import { OverviewBoard } from "@/components/OverviewBoard";
+import { StatTile } from "@/components/StatTile";
+import { fmtDate, fmtNum, monthName } from "@/lib/format";
+import { getOverview } from "@/lib/prices";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <Suspense fallback={<Loading />}>
+      <Overview />
+    </Suspense>
+  );
+}
+
+async function Overview() {
+  const { rows, meta } = await getOverview();
+
+  if (!rows.length) {
+    return (
+      <div className="rounded-xl border border-line bg-surface p-6">
+        <h1 className="text-xl font-semibold">এখনো কোনো তথ্য নেই</h1>
+        <p className="mt-2 text-ink-2">
+          টার্মিনালে <code className="rounded bg-page px-1.5 py-0.5">npm run collect</code> চালিয়ে তথ্য সংগ্রহ করুন।
+        </p>
+      </div>
+    );
+  }
+
+  const latest = rows.map((r) => r.latest?.date ?? "").sort().at(-1)!;
+  const byPeak = new Map<number, string[]>();
+  for (const r of rows) if (r.peakMonth) byPeak.set(r.peakMonth, [...(byPeak.get(r.peakMonth) ?? []), r.crop.bn]);
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div>
+        <h1 className="text-2xl font-semibold">বাংলাদেশের সবজির বাজার দর</h1>
+        <p className="mt-1 max-w-3xl text-ink-2">
+          কোন মাসে কোন সবজির দাম বেশি বা কম থাকে, তা দেখে চাষ ও বিক্রির সময় পরিকল্পনা করুন। দাম কম থাকা মাসগুলো সাধারণত
+          বাজারে সরবরাহ বেশি থাকার সময় (মৌসুম)। একটি সবজিতে ক্লিক করে দৈনিক, মাসিক ও বাৎসরিক বিশ্লেষণ দেখুন।
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <StatTile label="ফসল" value={fmtNum(rows.length)} />
+        <StatTile label="সর্বশেষ তথ্য" value={fmtDate(latest)} />
+        <StatTile label="মোট পর্যবেক্ষণ" value={fmtNum(meta.recordCount)} />
+        <StatTile label="তথ্যসূত্র" value={fmtNum(meta.sources.length)} />
+      </div>
+
+      <OverviewBoard rows={rows} />
+
+      {byPeak.size > 0 && (
+        <section className="rounded-xl border border-line bg-surface p-4">
+          <h2 className="text-base font-semibold">কোন মাসে কোন ফসলের দাম সবচেয়ে বেশি</h2>
+          <ul className="mt-3 grid gap-2 text-sm sm:grid-cols-2 lg:grid-cols-3">
+            {[...byPeak.entries()]
+              .sort(([a], [b]) => a - b)
+              .map(([m, crops]) => (
+                <li key={m} className="rounded-md bg-page px-3 py-2">
+                  <span className="font-medium">{monthName(m)}:</span> <span className="text-ink-2">{crops.join(", ")}</span>
+                </li>
+              ))}
+          </ul>
+        </section>
+      )}
+
+      <section className="text-sm text-ink-2">
+        <h2 className="font-semibold text-ink">তথ্যসূত্র</h2>
+        <ul className="mt-2 list-disc pl-5">
+          {meta.sources.map((s) => (
+            <li key={s.id}>
+              <a href={s.url} className="underline hover:text-accent" target="_blank" rel="noopener noreferrer">
+                {s.name}
+              </a>{" "}
+              — {s.coverage}; {fmtNum(s.records)} রেকর্ড; সংগ্রহ {fmtDate(s.fetchedAt)}; লাইসেন্স {s.licence}
+            </li>
+          ))}
+        </ul>
+        <p className="mt-2">
+          সতর্কতা: দাম খুচরা বাজারের; কৃষক পর্যায়ের (খামারদ্বার) দাম সাধারণত কম হয়। মৌসুমি সূচক কয়েক বছরের তথ্যের গড়, তাই
+          ভবিষ্যতের নিশ্চয়তা নয়।
+        </p>
+      </section>
     </div>
   );
 }

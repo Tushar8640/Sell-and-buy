@@ -1,26 +1,92 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  color-scheme: light;
+  --page: #f9f9f7;
+  --surface: #fcfcfb;
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --muted: #6f6d68;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --border: rgba(11, 11, 11, 0.1);
+  --accent: #1f6f3f;
+  --accent-soft: #e4f1e8;
+  --series-1: #2a78d6;
+  --series-1-soft: #cde2fb;
+  --up: #b42f2f;
+  --down: #1c5cab;
+  /* diverging scale: cheap (blue) <- neutral -> expensive (red) */
+  --div-low: #256abf;
+  --div-mid: #f0efec;
+  --div-high: #d03b3b;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --ink: #f0efec;
+    --ink-2: #c3c2b7;
+    --muted: #9a988f;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255, 255, 255, 0.1);
+    --accent: #5cc283;
+    --accent-soft: #1c2e22;
+    --series-1: #3987e5;
+    --series-1-soft: #1d3a5f;
+    --up: #e66767;
+    --down: #6da7ec;
+    --div-low: #3987e5;
+    --div-mid: #383835;
+    --div-high: #e66767;
   }
 }
 
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d;
+  --surface: #1a1a19;
+  --ink: #f0efec;
+  --ink-2: #c3c2b7;
+  --muted: #9a988f;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --border: rgba(255, 255, 255, 0.1);
+  --accent: #5cc283;
+  --accent-soft: #1c2e22;
+  --series-1: #3987e5;
+  --series-1-soft: #1d3a5f;
+  --up: #e66767;
+  --down: #6da7ec;
+  --div-low: #3987e5;
+  --div-mid: #383835;
+  --div-high: #e66767;
+}
+
+@theme inline {
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-grid: var(--grid);
+  --color-line: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-up: var(--up);
+  --color-down: var(--down);
+  --font-sans: var(--font-bengali), system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
 }
