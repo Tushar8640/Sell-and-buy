@@ -14,7 +14,7 @@ export const CROP_IMAGES: Record<string, string> = {
   "onion-local": "/crops/onion-local.webp",
   "onion-imported": "/crops/onion-imported.webp",
   "garlic-local": "/crops/garlic-local.webp",
-  "garlic-imported": "/crops/garlic-imported.webp",
+  "garlic-imported": "/crops/garlic-imported-v2.webp",
   "ginger-local": "/crops/ginger-local.webp",
   "ginger-imported": "/crops/ginger-imported.webp",
   "turmeric-local": "/crops/turmeric-local.webp",
@@ -66,6 +66,9 @@ export function getCropImage(cropId: string): string {
 
 export function getCropBlur(cropIdOrSrc?: string): string | undefined {
   if (!cropIdOrSrc) return BLUR_MAP["potato"];
-  const cleanId = cropIdOrSrc.replace(/^.*\/crops\//, "").replace(/\.(webp|jpg|jpeg|png)$/, "");
+  const cleanId = cropIdOrSrc
+    .replace(/^.*\/crops\//, "")
+    .replace(/\.(webp|jpg|jpeg|png)$/, "")
+    .replace(/-v\d+$/, "");
   return BLUR_MAP[cleanId] ?? BLUR_MAP["potato"];
 }
