@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "collect": "node --use-system-ca --import tsx scripts/collect.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "optimize-images": "node --import tsx scripts/optimize-images.ts"
   },
   "dependencies": {
     "exceljs": "^4.4.0",

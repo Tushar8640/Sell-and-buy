@@ -10,9 +10,11 @@ export interface OverviewRow {
   crop: Crop;
   latest: CropAnalytics["latest"];
   monthChange: number | null;
+  monthChangeAmount: number | null;
   peakMonth: number | null;
   lowMonth: number | null;
   seasonal: (number | null)[];
+  seasonalPrices: (number | null)[];
   observations: number;
   first: string;
 }
@@ -28,9 +30,14 @@ export async function getOverview() {
       crop,
       latest: a.latest,
       monthChange: a.change.month?.pct ?? null,
+      monthChangeAmount:
+        a.latest && a.change.month
+          ? Math.round((a.latest.price - a.change.month.from) * 10) / 10
+          : null,
       peakMonth: a.peakMonth,
       lowMonth: a.lowMonth,
       seasonal: a.seasonal.map((s) => s.index),
+      seasonalPrices: a.seasonal.map((s) => s.avgPrice),
       observations: a.observations,
       first: a.available.first,
     });

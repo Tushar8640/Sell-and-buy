@@ -7,6 +7,8 @@
 //
 // Re-runs are incremental: TCB files already parsed are skipped, WFP is re-downloaded in full.
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { canonicalDivision } from "../src/lib/catalogue";
